@@ -109,4 +109,5 @@ app.use(
   "/awardHistory",
   require("./routes/hr/awardHistory/awardHistory.routes")
 );
+app.use("/tasks", require("./routes/tasks/task.routes"));
 module.exports = app;
