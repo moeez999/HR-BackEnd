@@ -6,7 +6,6 @@ const moment = require("moment");
 const createTask = async (req, res) => {
   if (req.query.query === "deletemany") {
     try {
-      // delete many tasks at once
       const deletedTasks = await prisma.task.deleteMany({
         where: {
           id: {
