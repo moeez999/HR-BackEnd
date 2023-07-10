@@ -343,3 +343,33 @@ model appSetting {
   website      String
   footer       String
 }
+
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  subTasks    SubTask[]
+  attachments String[]
+  startDate   DateTime?
+  endDate     DateTime?
+  comments    String[]
+  updates     String[]
+  assignees   String[]
+  watchers    String[]
+  status      String?
+  isCompleted Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  modifiedAt  DateTime  @updatedAt
+}
+
+model SubTask {
+  id          Int      @id @default(autoincrement())
+  status      String?
+  description String?
+  creator     String?
+  createdAt   DateTime @default(now())
+  modifiedAt  DateTime @updatedAt
+  taskId      Int
+  task        Task     @relation(fields: [taskId], references: [id])
+}

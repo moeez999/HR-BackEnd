@@ -1,18 +1,20 @@
 const express = require("express");
+const router = express.Router();
+
+// Import the updated controller functions
 const {
-  //   createShift,
-  getAllTask,
-  //   getSingleShift,
-  //   updateSingleShift,
-  //   deleteSingleShift,
+  createTask,
+  getAllTasks,
+  getSingleTask,
+  updateSingleTask,
+  deleteSingleTask,
 } = require("./task.controller");
-const authorize = require("../../utils/authorize"); // authentication middleware
 
-const taskRoutes = express.Router();
+// Define the routes
+router.post("/tasks", createTask);
+router.get("/tasks", getAllTasks);
+router.get("/tasks/:id", getSingleTask);
+router.put("/tasks/:id", updateSingleTask);
+router.delete("/tasks/:id", deleteSingleTask);
 
-// shiftRoutes.post("/", authorize("create-shift"), createShift);
-taskRoutes.get("/", authorize("read-task"), getAllTask);
-// shiftRoutes.get("/:id", authorize("read-shift"), getSingleShift);
-// shiftRoutes.put("/:id", authorize("read-shift"), updateSingleShift);
-// shiftRoutes.delete("/:id", authorize("delete-shift"), deleteSingleShift);
-module.exports = taskRoutes;
+module.exports = router;
