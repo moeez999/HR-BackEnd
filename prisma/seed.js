@@ -187,6 +187,12 @@ const award = [
   },
 ];
 
+const taskStatus = [
+  { status: "TO DO" },
+  { status: "IN PROGRESS" },
+  { status: "COMPLETED" },
+];
+
 async function main() {
   await prisma.department.createMany({
     data: department,
@@ -215,6 +221,9 @@ async function main() {
 
   await prisma.award.createMany({
     data: award,
+  });
+  await prisma.award.createMany({
+    data: taskStatus,
   });
 
   await prisma.role.createMany({

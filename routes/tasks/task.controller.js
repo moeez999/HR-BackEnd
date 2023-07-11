@@ -36,24 +36,24 @@ const createTask = async (req, res) => {
           taskPrice: req.body.taskPrice,
           title: req.body.title,
           description: req.body.description,
-          subTasks: {
-            create: req.body.subTasks,
-          },
-          attachments: req.body.attachments,
-          startDate: req.body.startDate
-            ? new Date(req.body.startDate)
-            : undefined,
-          endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
+          // subTasks: {
+          //   create: req.body.subTasks,
+          // },
+          // attachments: req.body.attachments,
+          startDate: req.body.startDate,
+
+          endDate: req.body.endDate,
           comments: req.body.comments,
-          updates: req.body.updates,
-          assignee: req.body.assignee,
-          watchers: req.body.watchers,
-          status: req.body.status,
-          isCompleted: req.body.isCompleted || false,
+          // updates: req.body.updates,
+          assigneeId: req.body.assigneeId,
+          // status: req.body.status,
+          // isCompleted: req.body.isCompleted || false,
         },
       });
+      console.log(createTask);
       return res.status(201).json(createTask);
     } catch (error) {
+      console.log(error);
       return res.status(400).json({ message: error.message });
     }
   }
@@ -66,15 +66,13 @@ const getAllTasks = async (req, res) => {
       orderBy: {
         id: "asc",
       },
-      include: {
-        subTasks: true,
-      },
     });
 
     return res.status(200).json(getAllTasks);
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
+  // }
 };
 // else {
 //   const { skip, limit } = getPagination(req.query);
@@ -134,7 +132,7 @@ const updateSingleTask = async (req, res) => {
         endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
         comments: req.body.comments,
         updates: req.body.updates,
-        assignees: req.body.assignees,
+        assignee: req.body.assignee,
         watchers: req.body.watchers,
         status: req.body.status,
         isCompleted: req.body.isCompleted || false,
