@@ -32,6 +32,8 @@ const createTask = async (req, res) => {
     try {
       const createTask = await prisma.task.create({
         data: {
+          clientId: req.body.clientId,
+          taskPrice: req.body.taskPrice,
           title: req.body.title,
           description: req.body.description,
           subTasks: {
@@ -44,7 +46,7 @@ const createTask = async (req, res) => {
           endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
           comments: req.body.comments,
           updates: req.body.updates,
-          assignees: req.body.assignees,
+          assignee: req.body.assignee,
           watchers: req.body.watchers,
           status: req.body.status,
           isCompleted: req.body.isCompleted || false,
@@ -58,40 +60,41 @@ const createTask = async (req, res) => {
 };
 
 const getAllTasks = async (req, res) => {
-  if (req.body.query === "all") {
-    try {
-      const getAllTasks = await prisma.task.findMany({
-        orderBy: {
-          id: "asc",
-        },
-        include: {
-          subTasks: true,
-        },
-      });
+  // if (req.body.query === "all") {
+  try {
+    const getAllTasks = await prisma.task.findMany({
+      orderBy: {
+        id: "asc",
+      },
+      include: {
+        subTasks: true,
+      },
+    });
 
-      return res.status(200).json(getAllTasks);
-    } catch (error) {
-      return res.status(400).json({ message: error.message });
-    }
-  } else {
-    const { skip, limit } = getPagination(req.query);
-    try {
-      const allTasks = await prisma.task.findMany({
-        orderBy: {
-          id: "asc",
-        },
-        skip: parseInt(skip),
-        take: parseInt(limit),
-        include: {
-          subTasks: true,
-        },
-      });
-      return res.status(200).json(allTasks);
-    } catch (error) {
-      return res.status(400).json({ message: error.message });
-    }
+    return res.status(200).json(getAllTasks);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
   }
 };
+// else {
+//   const { skip, limit } = getPagination(req.query);
+//   try {
+//     const allTasks = await prisma.task.findMany({
+//       orderBy: {
+//         id: "asc",
+//       },
+//       skip: parseInt(skip),
+//       take: parseInt(limit),
+//       include: {
+//         subTasks: true,
+//       },
+//     });
+//     return res.status(200).json(allTasks);
+//   } catch (error) {
+//     return res.status(400).json({ message: error.message });
+//   }
+// }
+// };
 
 const getSingleTask = async (req, res) => {
   try {
@@ -117,6 +120,8 @@ const updateSingleTask = async (req, res) => {
         id: parseInt(req.params.id),
       },
       data: {
+        client: req.body.client,
+        taskPrice: req.body.taskPrice,
         title: req.body.title,
         description: req.body.description,
         subTasks: {

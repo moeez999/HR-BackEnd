@@ -347,7 +347,9 @@ model appSetting {
 
 model Task {
   id          Int       @id @default(autoincrement())
-  title       String
+  clientId     String?
+  taskPrice   Float? 
+  title       String?
   description String?
   subTasks    SubTask[]
   attachments String[]
