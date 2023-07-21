@@ -2,107 +2,88 @@ const { getPagination } = require("../../utils/query");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const moment = require("moment");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const createTask = async (req, res) => {
-  if (req.query.query === "deletemany") {
-    try {
-      const deletedTasks = await prisma.task.deleteMany({
-        where: {
-          id: {
-            in: req.body,
-          },
-        },
-      });
+  try {
+    const createTask = await prisma.task.create({
+      data: {
+        clientId: req.body.clientId,
+        taskPrice: req.body.taskPrice,
+        title: req.body.title,
+        description: req.body.description,
+        attachments: req.files,
 
-      return res.status(200).json(deletedTasks);
-    } catch (error) {
-      return res.status(400).json({ message: error.message });
-    }
-  } else if (req.query.query === "createmany") {
-    try {
-      const createTasks = await prisma.task.createMany({
-        data: req.body,
-        skipDuplicates: true,
-      });
-      return res.status(201).json(createTasks);
-    } catch (error) {
-      return res.status(400).json({ message: error.message });
-    }
-  } else {
-    try {
-      const createTask = await prisma.task.create({
-        data: {
-          clientId: req.body.clientId,
-          taskPrice: req.body.taskPrice,
-          title: req.body.title,
-          description: req.body.description,
-          // subTasks: {
-          //   create: req.body.subTasks,
-          // },
-          // attachments: req.body.attachments,
-          startDate: req.body.startDate,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
+        comments: req.body.comments,
+        assignee: req.body.assignee,
+        // assigneeId: parseInt(req.body.assigneeId),
+        status: req.body.status,
+      },
+    });
 
-          endDate: req.body.endDate,
-          comments: req.body.comments,
-          // updates: req.body.updates,
-          assigneeId: req.body.assigneeId,
-          // status: req.body.status,
-          // isCompleted: req.body.isCompleted || false,
-        },
-      });
-      console.log(createTask);
-      return res.status(201).json(createTask);
-    } catch (error) {
-      console.log(error);
-      return res.status(400).json({ message: error.message });
+    console.log(createTask);
+    return res.status(201).json(createTask);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: error.message });
+  }
+};
+const downloadAttachment = async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const file = path.join(__dirname, "..", "..", "uploads", filename);
+
+    // Check if the file exists
+    if (fs.existsSync(file)) {
+      // Set the appropriate headers for the file download
+      res.setHeader(
+        "Content-Disposition",
+        `attachments; filename="${filename}"`
+      );
+      res.setHeader("Content-Type", "application/octet-stream");
+
+      // Stream the file to the response
+      const fileStream = fs.createReadStream(file);
+      fileStream.pipe(res);
+    } else {
+      // If the file doesn't exist, return a 404 Not Found response
+      res.status(404).json({ message: "File not found" });
     }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const getAllTasks = async (req, res) => {
-  // if (req.body.query === "all") {
   try {
     const getAllTasks = await prisma.task.findMany({
       orderBy: {
         id: "asc",
       },
+      // include: {
+      //   subTasks: true,
+      // },
     });
 
     return res.status(200).json(getAllTasks);
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
-  // }
 };
-// else {
-//   const { skip, limit } = getPagination(req.query);
-//   try {
-//     const allTasks = await prisma.task.findMany({
-//       orderBy: {
-//         id: "asc",
-//       },
-//       skip: parseInt(skip),
-//       take: parseInt(limit),
-//       include: {
-//         subTasks: true,
-//       },
-//     });
-//     return res.status(200).json(allTasks);
-//   } catch (error) {
-//     return res.status(400).json({ message: error.message });
-//   }
-// }
-// };
-
 const getSingleTask = async (req, res) => {
   try {
     const singleTask = await prisma.task.findUnique({
       where: {
         id: parseInt(req.params.id),
       },
-      include: {
-        subTasks: true,
-      },
+      // include: {
+      //   subTasks: true,
+      // },
     });
 
     return res.status(200).json(singleTask);
@@ -118,29 +99,20 @@ const updateSingleTask = async (req, res) => {
         id: parseInt(req.params.id),
       },
       data: {
-        client: req.body.client,
-        taskPrice: req.body.taskPrice,
         title: req.body.title,
         description: req.body.description,
-        subTasks: {
-          create: req.body.subTasks,
-        },
-        attachments: req.body.attachments,
-        startDate: req.body.startDate
-          ? new Date(req.body.startDate)
-          : undefined,
-        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
+        attachments: req.files,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
         comments: req.body.comments,
-        updates: req.body.updates,
         assignee: req.body.assignee,
-        watchers: req.body.watchers,
         status: req.body.status,
-        isCompleted: req.body.isCompleted || false,
       },
     });
 
     return res.status(200).json(updateTask);
   } catch (error) {
+    console.log(error);
     return res.status(400).json({ message: error.message });
   }
 };
@@ -154,6 +126,7 @@ const deleteSingleTask = async (req, res) => {
     });
     return res.status(200).json(deleteTask);
   } catch (error) {
+    console.log(error);
     return res.status(400).json({ message: error.message });
   }
 };
@@ -161,7 +134,8 @@ const deleteSingleTask = async (req, res) => {
 module.exports = {
   createTask,
   getAllTasks,
-  getSingleTask,
   updateSingleTask,
   deleteSingleTask,
+  getSingleTask,
+  downloadAttachment,
 };
